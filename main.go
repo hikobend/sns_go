@@ -26,6 +26,11 @@ type User struct { // DB
 	CreatedAt    time.Time
 }
 
+type UserName struct { // 名前のみ
+	Id   int
+	Name string
+}
+
 func main() {
 	r := gin.Default()
 
@@ -65,9 +70,9 @@ func GetsUser(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	var resultUser []User
+	var resultUser []UserName
 	for rows.Next() {
-		user := User{}
+		user := UserName{}
 		if err := rows.Scan(&user.Id, &user.Name); err != nil {
 			log.Fatal(err)
 		}
