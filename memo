@@ -1,0 +1,15 @@
+CREATE TABLE `user` (
+	`id` int  AUTO_INCREMENT PRIMARY KEY,
+	`name` text not null,
+	`email` text not null,
+	`password` text not null,
+	`introduction` text,
+	`created_at` DATETIME DEFAULT  CURRENT_TIMESTAMP
+);
+
+CREATE TABLE `message` (
+	`id` int  AUTO_INCREMENT PRIMARY KEY,
+	`user_id` int,
+	`content` text not null,
+	`created_at` DATETIME DEFAULT  CURRENT_TIMESTAMP
+);
