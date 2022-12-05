@@ -3,6 +3,7 @@ package main
 import (
 	"database/sql"
 	"log"
+	"net/http"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -31,6 +32,7 @@ func main() {
 	u := r.Group("/user")
 
 	u.POST("/create", CreateUser)
+	u.GET("/gets", GetsUser)
 
 	r.Run()
 }
@@ -50,4 +52,27 @@ func CreateUser(c *gin.Context) {
 		log.Fatal(err)
 	}
 	insert.Exec(user.Name, user.Email, user.Password, user.Introduction)
+}
+
+func GetsUser(c *gin.Context) {
+	db, err := sql.Open("mysql", "root:password@(localhost:3306)/local?parseTime=true")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	rows, err := db.Query("select id, name from user")
+	if err != nil {
+		log.Fatal(err)
+	}
+	var resultUser []User
+	for rows.Next() {
+		user := User{}
+		if err := rows.Scan(&user.Id, &user.Name); err != nil {
+			log.Fatal(err)
+		}
+		resultUser = append(resultUser, user)
+	}
+
+	c.JSON(http.StatusOK, resultUser)
 }
