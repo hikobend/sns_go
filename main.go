@@ -41,6 +41,7 @@ func main() {
 	u.GET("/gets", GetsUser)
 	u.GET("/get/:id", GetByIdUser)
 	u.PATCH("/update/:id", UpdateUserName)
+	u.DELETE("/delete/:id", DeleteUser)
 
 	r.Run()
 }
@@ -127,4 +128,23 @@ func UpdateUserName(c *gin.Context) {
 		log.Fatal(err)
 	}
 	update.Exec(json.Name, id)
+}
+
+func DeleteUser(c *gin.Context) {
+	db, err := sql.Open("mysql", "root:password@(localhost:3306)/local?parseTime=true")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	delete, err := db.Prepare("DELETE FROM user WHERE id = ?")
+	if err != nil {
+		log.Fatal(err)
+	}
+	delete.Exec(id)
 }
