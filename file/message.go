@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -66,4 +67,25 @@ func GetsAllMessage(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, resultMessage)
+}
+
+func GetMessage(c *gin.Context) {
+	db, err := sql.Open("mysql", "root:password@(localhost:3306)/local?parseTime=true")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var getmessage MessageContent
+
+	if err = db.QueryRow("SELECT id, content FROM message where id = ?", id).Scan(&getmessage.Id, &getmessage.Content); err != nil {
+		log.Fatal(err)
+	}
+
+	c.JSON(http.StatusOK, getmessage)
 }
