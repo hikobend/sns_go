@@ -9,6 +9,7 @@ import (
 
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
+	"github.com/hikobend/sns_go/file"
 )
 
 type User_JSON struct { // JSON
@@ -36,12 +37,16 @@ func main() {
 	r := gin.Default()
 
 	u := r.Group("/user")
+	m := r.Group("/message")
 
 	u.POST("/create", CreateUser)
 	u.GET("/gets", GetsUser)
 	u.GET("/get/:id", GetByIdUser)
 	u.PATCH("/update/:id", UpdateUserName)
 	u.DELETE("/delete/:id", DeleteUser)
+
+	m.POST("/create", file.CreateMessage)
+	m.GET("/gets", file.GetsAllMessage)
 
 	r.Run()
 }
