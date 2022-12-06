@@ -48,6 +48,7 @@ func main() {
 	m.POST("/create", file.CreateMessage)
 	m.GET("/gets", file.GetsAllMessage)
 	m.GET("/get/:id", file.GetMessage)
+	m.GET("/user/:id", file.GetByUserIdAllMessage)
 
 	r.Run()
 }

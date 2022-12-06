@@ -76,16 +76,46 @@ func GetMessage(c *gin.Context) {
 	}
 	defer db.Close()
 
-	id, err := strconv.Atoi(c.Param("id"))
+	user_id, err := strconv.Atoi(c.Param("id"))
 	if err != nil {
 		log.Fatalln(err)
 	}
 
 	var getmessage MessageContent
 
-	if err = db.QueryRow("SELECT id, content FROM message where id = ?", id).Scan(&getmessage.Id, &getmessage.Content); err != nil {
+	if err = db.QueryRow("SELECT id, content FROM message where id = ?", user_id).Scan(&getmessage.Id, &getmessage.Content); err != nil {
 		log.Fatal(err)
 	}
 
 	c.JSON(http.StatusOK, getmessage)
+}
+
+func GetByUserIdAllMessage(c *gin.Context) {
+	db, err := sql.Open("mysql", "root:password@(localhost:3306)/local?parseTime=true")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	rows, err := db.Query("select id, content from message where user_id = ?", id)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	var resultMessage []MessageContent
+
+	for rows.Next() {
+		message := MessageContent{}
+		if err := rows.Scan(&message.Id, &message.Content); err != nil {
+			log.Fatal(err)
+		}
+		resultMessage = append(resultMessage, message)
+	}
+
+	c.JSON(http.StatusOK, resultMessage)
 }
