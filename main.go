@@ -4,6 +4,7 @@ import (
 	"database/sql"
 	"log"
 	"net/http"
+	"strconv"
 	"time"
 
 	"github.com/gin-gonic/gin"
@@ -38,6 +39,7 @@ func main() {
 
 	u.POST("/create", CreateUser)
 	u.GET("/gets", GetsUser)
+	u.GET("/get/:id", GetByIdUser)
 
 	r.Run()
 }
@@ -71,6 +73,7 @@ func GetsUser(c *gin.Context) {
 		log.Fatal(err)
 	}
 	var resultUser []UserName
+
 	for rows.Next() {
 		user := UserName{}
 		if err := rows.Scan(&user.Id, &user.Name); err != nil {
@@ -80,4 +83,25 @@ func GetsUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, resultUser)
+}
+
+func GetByIdUser(c *gin.Context) {
+	db, err := sql.Open("mysql", "root:password@(localhost:3306)/local?parseTime=true")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	var getuser UserName
+
+	if err = db.QueryRow("SELECT id, name FROM user where id = ?", id).Scan(&getuser.Id, &getuser.Name); err != nil {
+		log.Fatal(err)
+	}
+
+	c.JSON(http.StatusOK, getuser)
 }
