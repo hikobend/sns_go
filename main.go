@@ -40,6 +40,7 @@ func main() {
 	u.POST("/create", CreateUser)
 	u.GET("/gets", GetsUser)
 	u.GET("/get/:id", GetByIdUser)
+	u.PATCH("/update/:id", UpdateUserName)
 
 	r.Run()
 }
@@ -104,4 +105,26 @@ func GetByIdUser(c *gin.Context) {
 	}
 
 	c.JSON(http.StatusOK, getuser)
+}
+
+func UpdateUserName(c *gin.Context) {
+	db, err := sql.Open("mysql", "root:password@(localhost:3306)/local?parseTime=true")
+	if err != nil {
+		log.Fatal(err)
+	}
+	defer db.Close()
+
+	var json User_JSON
+	c.ShouldBindJSON(&json)
+
+	id, err := strconv.Atoi(c.Param("id"))
+	if err != nil {
+		log.Fatalln(err)
+	}
+
+	update, err := db.Prepare("UPDATE user SET name = ? WHERE id = ?")
+	if err != nil {
+		log.Fatal(err)
+	}
+	update.Exec(json.Name, id)
 }
