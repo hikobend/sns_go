@@ -10,6 +10,7 @@ import (
 	"github.com/gin-gonic/gin"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/hikobend/sns_go/file"
+	"golang.org/x/crypto/bcrypt"
 )
 
 type User_JSON struct { // JSON
@@ -40,6 +41,7 @@ func main() {
 	m := r.Group("/message")
 
 	u.POST("/create", CreateUser)
+	// u.("/login/:id/:password", LoginUser)
 	u.GET("/gets", GetsUser)
 	u.GET("/get/:id", GetByIdUser)
 	u.PATCH("/update/:id", UpdateUserName)
@@ -51,6 +53,12 @@ func main() {
 	m.GET("/user/:id", file.GetByUserIdAllMessage)
 
 	r.Run()
+}
+
+// 暗号(Hash)化
+func PasswordEncrypt(password string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+	return string(hash), err
 }
 
 func CreateUser(c *gin.Context) {
@@ -67,7 +75,8 @@ func CreateUser(c *gin.Context) {
 	if err != nil {
 		log.Fatal(err)
 	}
-	insert.Exec(user.Name, user.Email, user.Password, user.Introduction)
+	password, _ := PasswordEncrypt(user.Password)
+	insert.Exec(user.Name, user.Email, password, user.Introduction)
 }
 
 func GetsUser(c *gin.Context) {
