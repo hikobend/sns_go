@@ -41,7 +41,6 @@ func main() {
 	m := r.Group("/message")
 
 	u.POST("/create", CreateUser)
-	// u.("/login/:id/:password", LoginUser)
 	u.GET("/gets", GetsUser)
 	u.GET("/get/:id", GetByIdUser)
 	u.PATCH("/update/:id", UpdateUserName)
