@@ -8,15 +8,16 @@ import (
 	"time"
 
 	"github.com/gin-gonic/gin"
+	"github.com/go-playground/validator/v10"
 	_ "github.com/go-sql-driver/mysql"
 	"github.com/hikobend/sns_go/file"
 	"golang.org/x/crypto/bcrypt"
 )
 
 type User_JSON struct { // JSON
-	Name         string `json:"name"`
-	Email        string `json:"email"`
-	Password     string `json:"password"`
+	Name         string `json:"name" validate:"required"`
+	Email        string `json:"email" validate:"required,email"`
+	Password     string `json:"password" validate:"required,min=8,max=50"`
 	Introduction string `json:"introduction"`
 }
 
@@ -30,8 +31,8 @@ type User struct { // DB
 }
 
 type UserName struct { // 名前のみ
-	Id   int
-	Name string
+	Id   int    `validate:"required, gte=0"`
+	Name string `validate:"required"`
 }
 
 func main() {
@@ -68,7 +69,13 @@ func CreateUser(c *gin.Context) {
 	defer db.Close()
 
 	var user User_JSON
+	validate := validator.New()
 	c.ShouldBindJSON(&user)
+
+	err = validate.Struct(&user) //バリデーションを実行し、NGの場合、ここでエラーが返る。
+	if err != nil {
+		log.Fatal(err)
+	}
 
 	insert, err := db.Prepare("INSERT INTO user(name, email, password, introduction) VALUES (?, ?, ?, ?)")
 	if err != nil {
