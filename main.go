@@ -14,11 +14,11 @@ import (
 	"golang.org/x/crypto/bcrypt"
 )
 
-type User_JSON struct { // JSON
-	Name         string `json:"name" validate:"required"`
-	Email        string `json:"email" validate:"required,email"`
-	Password     string `json:"password" validate:"required,min=8,max=50"`
-	Introduction string `json:"introduction"`
+type User_JSON struct {
+	Name         string `json:"name" db:"name" validate:"required"`
+	Email        string `json:"email" db:"email" validate:"required,email"`
+	Password     string `json:"password" db:"password" validate:"required,min=8,max=50"`
+	Introduction string `json:"introduction" db:"introduction"`
 }
 
 type User struct { // DB
@@ -31,8 +31,8 @@ type User struct { // DB
 }
 
 type UserName struct { // 名前のみ
-	Id   int    `validate:"required, gte=0"`
-	Name string `validate:"required"`
+	Id   int
+	Name string
 }
 
 func main() {
@@ -56,8 +56,8 @@ func main() {
 }
 
 // 暗号(Hash)化
-func PasswordEncrypt(password string) (string, error) {
-	hash, err := bcrypt.GenerateFromPassword([]byte(password), bcrypt.DefaultCost)
+func PasswordEncrypt(p string) (string, error) {
+	hash, err := bcrypt.GenerateFromPassword([]byte(p), bcrypt.DefaultCost)
 	return string(hash), err
 }
 
